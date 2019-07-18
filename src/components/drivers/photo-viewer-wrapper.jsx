@@ -8,7 +8,7 @@ import Photo360Viewer from './photo360-viewer';
 import Loading from '../loading';
 
 function getPhotoDriver(width, height, fileType) {
-  if (fileType === 'jpg' && window.Math.abs((width / height) - 2) <= 0.01) {
+  if (fileType === 'jpg' && window.Math.abs(width / height - 2) <= 0.01) {
     return Photo360Viewer;
   }
   return PhotoViewer;
@@ -29,26 +29,35 @@ export default class PhotoViewerWrapper extends Component {
     // spike on using promises and a different loader or adding three js loading manager
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = '';
-    // load a resource
-    loader.load(
-      // resource URL
-      this.props.filePath,
-      // Function when resource is   loaded
-      (texture) => {
-        this.setState({
-          originalWidth: texture.image.width,
-          originalHeight: texture.image.height,
-          imageLoaded: true,
-          texture,
-        });
-      },
-      (xhr) => {
-        console.log(`${xhr.loaded / xhr.total * 100}% loaded`);
-      },
-      (xhr) => {
-        console.log('An error happened', xhr);
-      },
-    );
+
+    if (this.props.data) {
+      console.log(this.props.data);
+      const uInt8Array = new Uint8Array(this.props.data);
+      const blob = new window.Blob([uInt8Array], {
+        type: `video/${this.props.fileType}`,
+      });
+      const url = window.URL.createObjectURL(blob);
+      // load a resource
+      loader.load(
+        // resource URL
+        url,
+        // Function when resource is   loaded
+        texture => {
+          this.setState({
+            originalWidth: texture.image.width,
+            originalHeight: texture.image.height,
+            imageLoaded: true,
+            texture,
+          });
+        },
+        xhr => {
+          console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`);
+        },
+        xhr => {
+          console.log('An error happened', xhr);
+        },
+      );
+    }
   }
 
   render() {
@@ -56,10 +65,12 @@ export default class PhotoViewerWrapper extends Component {
       return <Loading />;
     }
     const { originalWidth, originalHeight } = this.state;
-    const PhotoDriver = getPhotoDriver(originalWidth, originalHeight, this.props.fileType);
-
-    return (
-      <PhotoDriver {...this.state} {...this.props} />
+    const PhotoDriver = getPhotoDriver(
+      originalWidth,
+      originalHeight,
+      this.props.fileType,
     );
+
+    return <PhotoDriver {...this.state} {...this.props} />;
   }
 }

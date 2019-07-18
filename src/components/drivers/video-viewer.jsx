@@ -3,7 +3,6 @@
 import React, { Component } from 'react';
 
 import 'styles/video.scss';
-import Loading from '../loading';
 
 class VideoViewer extends Component {
   constructor(props) {
@@ -13,33 +12,51 @@ class VideoViewer extends Component {
     };
   }
 
+  componentDidMount() {
+    if (this.props.data) {
+      console.log(this.props.data);
+      const uInt8Array = new Uint8Array(this.props.data);
+      const blob = new window.Blob([uInt8Array], {
+        type: `video/${this.props.fileType}`,
+      });
+      const url = window.URL.createObjectURL(blob);
+      this.setState({ dataUrl: url });
+    }
+  }
+
+  componentWillUnmount() {
+    window.URL.revokeObjectURL(this.state.dataUrl);
+  }
+
   onCanPlay() {
     this.setState({ loading: false });
   }
 
-  renderLoading() {
-    if (this.state.loading) {
-      return <Loading />;
-    }
-    return null;
-  }
-
   render() {
     const visibility = this.state.loading ? 'hidden' : 'visible';
+    //
+    if (this.state.dataUrl) {
+      //
+      return (
+        <div className="pg-driver-view">
+          <div className="video-container">
+            <video
+              style={{ visibility }}
+              controls
+              type={`video/${this.props.fileType}`}
+              onCanPlay={e => this.onCanPlay(e)}
+              src={this.state.dataUrl}
+              onError={event => console.log(event.target.error)}
+            >
+              Video playback is not supported by your browser.
+            </video>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="pg-driver-view">
-        <div className="video-container">
-          {this.renderLoading()}
-          <video
-            style={{ visibility }}
-            controls
-            type={`video/${this.props.fileType}`}
-            onCanPlay={e => this.onCanPlay(e)}
-            src={this.props.filePath}
-          >
-            Video playback is not supported by your browser.
-          </video>
-        </div>
+        <div className="video-container" />
       </div>
     );
   }
