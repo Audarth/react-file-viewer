@@ -29,21 +29,6 @@ function withFetching(WrappedComponent, props) {
       this.abort();
     }
 
-    render() {
-      if (!this.xhr) {
-        return <h1>CORS not supported..</h1>;
-      }
-
-      if (this.state.error) {
-        return <Error {...this.props} error={this.state.error} />;
-      }
-
-      if (this.state.data) {
-        return <WrappedComponent data={this.state.data} {...this.props} />;
-      }
-      return <Loading />;
-    }
-
     createRequest(path) {
       let xhr = new XMLHttpRequest();
 
@@ -65,21 +50,19 @@ function withFetching(WrappedComponent, props) {
 
       xhr.onload = () => {
         if (xhr.status >= 400) {
-          console.log(xhr);
           if (xhr.responseType === 'arraybuffer') {
             const arrayBuffer = xhr.response;
 
             if (arrayBuffer) {
-              var dataView = new DataView(arrayBuffer);
+              const dataView = new DataView(arrayBuffer);
               // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
               // eslint-disable-next-line no-undef
-              var decoder = new TextDecoder('utf-8');
+              const decoder = new TextDecoder('utf-8');
               const decodedString = decoder.decode(dataView);
               const obj = JSON.parse(decodedString);
 
               this.setState({ error: obj.errorResponse.status });
               return;
-              //throw new Error(obj.errorResponse.status);
             }
           } else if (xhr.responseType === '') {
             const decodedString = xhr.responseText;
@@ -108,6 +91,20 @@ function withFetching(WrappedComponent, props) {
       if (this.xhr) {
         this.xhr.abort();
       }
+    }
+    render() {
+      if (!this.xhr) {
+        return <h1>CORS not supported..</h1>;
+      }
+
+      if (this.state.error) {
+        return <Error {...this.props} error={this.state.error} />;
+      }
+
+      if (this.state.data) {
+        return <WrappedComponent data={this.state.data} {...this.props} />;
+      }
+      return <Loading />;
     }
   };
 }

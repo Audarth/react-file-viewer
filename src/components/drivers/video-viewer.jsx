@@ -14,7 +14,6 @@ class VideoViewer extends Component {
 
   componentDidMount() {
     if (this.props.data) {
-      console.log(this.props.data);
       const uInt8Array = new Uint8Array(this.props.data);
       const blob = new window.Blob([uInt8Array], {
         type: `video/${this.props.fileType}`,

@@ -31,7 +31,6 @@ export default class PhotoViewerWrapper extends Component {
     loader.crossOrigin = '';
 
     if (this.props.data) {
-      console.log(this.props.data);
       const uInt8Array = new Uint8Array(this.props.data);
       const blob = new window.Blob([uInt8Array], {
         type: `video/${this.props.fileType}`,
