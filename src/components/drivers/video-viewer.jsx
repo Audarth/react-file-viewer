@@ -45,7 +45,6 @@ class VideoViewer extends Component {
               type={`video/${this.props.fileType}`}
               onCanPlay={e => this.onCanPlay(e)}
               src={this.state.dataUrl}
-              onError={event => console.log(event.target.error)}
             >
               Video playback is not supported by your browser.
             </video>

@@ -6,27 +6,43 @@ import ReactDataGrid from 'react-data-grid';
 import CSV from 'comma-separated-values';
 
 class CsvViewer extends Component {
-
   static parse(data) {
     const rows = [];
     const columns = [];
+    let maxColumnIndex = null;
 
-    new CSV(data).forEach((array) => {
+    new CSV(data, { cast: false }).forEach(array => {
       if (columns.length < 1) {
-        array.forEach((cell, idx) => {
+        maxColumnIndex = array.length - 1;
+
+        let emptyStringCheck = 0;
+        for (let i = 0; i < array.length; i += 1) {
+          if (array[i] === '') {
+            emptyStringCheck += 1;
+          } else {
+            emptyStringCheck = 0;
+          }
+          if (emptyStringCheck >= 50) {
+            maxColumnIndex = i;
+            break;
+          }
           columns.push({
-            key: `key-${idx}`,
-            name: cell,
+            key: `key-${i}`,
+            name: array[i],
             resizable: true,
-            sortable: true,
-            filterable: true,
+            sortable: false,
+            filterable: false,
           });
-        });
+        }
       } else {
         const row = {};
-        array.forEach((cell, idx) => {
-          row[`key-${idx}`] = cell;
-        });
+
+        for (let i = 0; i < array.length; i += 1) {
+          if (i > maxColumnIndex) {
+            break;
+          }
+          row[`key-${i}`] = array[i];
+        }
         rows.push(row);
       }
     });
@@ -36,7 +52,13 @@ class CsvViewer extends Component {
 
   constructor(props) {
     super(props);
-    this.state = CsvViewer.parse(props.data);
+    this.state = {};
+  }
+
+  componentDidMount() {
+    if (this.props.data) {
+      this.setState(CsvViewer.parse(this.props.data));
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -45,14 +67,17 @@ class CsvViewer extends Component {
 
   render() {
     const { rows, columns } = this.state;
-    return (
-      <ReactDataGrid
-        columns={columns}
-        rowsCount={rows.length}
-        rowGetter={i => rows[i]}
-        minHeight={this.props.height || 650}
-      />
-    );
+    if (rows && columns) {
+      return (
+        <ReactDataGrid
+          columns={columns}
+          rowsCount={rows.length}
+          rowGetter={i => rows[i]}
+          minHeight={this.props.height || 650}
+        />
+      );
+    }
+    return <div />;
   }
 }
 
