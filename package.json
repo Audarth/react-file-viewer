@@ -84,6 +84,7 @@
     "prop-types": "^15.5.10",
     "react-data-grid": "^5.0.5",
     "react-visibility-sensor": "^5.0.2",
+    "text-encoding": "^0.7.0",
     "three": "0.85.2",
     "xlsx": "^0.14.3"
   },

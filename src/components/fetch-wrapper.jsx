@@ -1,6 +1,7 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
 import React, { Component } from 'react';
+import encoding from 'text-encoding';
 
 import Error from './error';
 import Loading from './loading';
@@ -55,9 +56,9 @@ function withFetching(WrappedComponent, props) {
 
             if (arrayBuffer) {
               const dataView = new DataView(arrayBuffer);
-              // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
-              // eslint-disable-next-line no-undef
-              const decoder = new TextDecoder('utf-8');
+
+              const decoder = new encoding.TextDecoder();
+
               const decodedString = decoder.decode(dataView);
               const obj = JSON.parse(decodedString);
 

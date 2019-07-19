@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import mammoth from 'mammoth';
+import encoding from 'text-encoding';
 
 import 'styles/docx.scss';
 import Loading from '../loading';
@@ -38,15 +39,14 @@ export default class extends Component {
             .done();
         } else {
           this.setState(() => {
-            var arrayBuffer = jsonFile.response;
+            const arrayBuffer = jsonFile.response;
             if (arrayBuffer) {
-              var dataView = new DataView(arrayBuffer);
-              // The TextDecoder interface is documented at http://encoding.spec.whatwg.org/#interface-textdecoder
-              // eslint-disable-next-line no-undef
-              var decoder = new TextDecoder('utf-8');
-              var decodedString = decoder.decode(dataView);
-              var obj = JSON.parse(decodedString);
-              //throw new Error(obj.errorResponse.status);
+              const dataView = new DataView(arrayBuffer);
+
+              const decoder = new encoding.TextDecoder();
+              const decodedString = decoder.decode(dataView);
+              const obj = JSON.parse(decodedString);
+
               this.setState({ error: obj.errorResponse.status });
             }
           });
