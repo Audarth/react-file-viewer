@@ -13,7 +13,6 @@ import {
   DocxViewer,
   VideoViewer,
   XlsxViewer,
-  XBimViewer,
   PDFViewer,
   UnsupportedViewer,
   PhotoViewerWrapper,
@@ -63,49 +62,42 @@ class FileViewer extends Component {
   getDriver() {
     switch (this.props.fileType) {
       case 'csv': {
-        return withFetching(CsvViewer, this.props);
+        this.WrappedComponent = CsvViewer;
+        this.responseType = '';
+        return withFetching;
       }
       case 'xlsx': {
-        const newProps = Object.assign({}, this.props, {
-          responseType: 'arraybuffer',
-        });
-        return withFetching(XlsxViewer, newProps);
+        this.WrappedComponent = XlsxViewer;
+        this.responseType = 'arraybuffer';
+        return withFetching;
       }
       case 'jpg':
       case 'jpeg':
       case 'gif':
       case 'bmp':
       case 'png': {
-        const newProps = Object.assign({}, this.props, {
-          responseType: 'arraybuffer',
-        });
-        return withFetching(PhotoViewerWrapper, newProps);
+        this.WrappedComponent = PhotoViewerWrapper;
+        this.responseType = 'arraybuffer';
+        return withFetching;
       }
       case 'pdf': {
-        const newProps = Object.assign({}, this.props, {
-          responseType: 'arraybuffer',
-        });
-        return withFetching(PDFViewer, newProps);
+        this.WrappedComponent = PDFViewer;
+        this.responseType = 'arraybuffer';
+        return withFetching;
       }
       case 'docx': {
         return DocxViewer;
       }
       case 'mp3': {
-        const newProps = Object.assign({}, this.props, {
-          responseType: 'arraybuffer',
-        });
-        return withFetching(AudioViewer, newProps);
-        //return AudioViewer;
+        this.WrappedComponent = AudioViewer;
+        this.responseType = 'arraybuffer';
+        return withFetching;
       }
       case 'webm':
       case 'mp4': {
-        const newProps = Object.assign({}, this.props, {
-          responseType: 'arraybuffer',
-        });
-        return withFetching(VideoViewer, newProps);
-      }
-      case 'wexbim': {
-        return XBimViewer;
+        this.WrappedComponent = VideoViewer;
+        this.responseType = 'arraybuffer';
+        return withFetching;
       }
       default: {
         return UnsupportedViewer;
@@ -118,19 +110,20 @@ class FileViewer extends Component {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return <Error {...this.props} error={this.state.errorDetails.message} />;
-    } else {
-      return (
-        <div className="pg-viewer-wrapper">
-          <div className="pg-viewer" id="pg-viewer">
-            <Driver
-              {...this.props}
-              width={this.state.width}
-              height={this.state.height}
-            />
-          </div>
-        </div>
-      );
     }
+    return (
+      <div className="pg-viewer-wrapper">
+        <div className="pg-viewer" id="pg-viewer">
+          <Driver
+            {...this.props}
+            width={this.state.width}
+            height={this.state.height}
+            WrappedComponent={this.WrappedComponent}
+            responseType={this.responseType}
+          />
+        </div>
+      </div>
+    );
   }
 }
 
